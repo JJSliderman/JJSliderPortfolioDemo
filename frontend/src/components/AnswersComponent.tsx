@@ -20,9 +20,9 @@ export const AnswersComponent = () => {
   });
   const { loggedInUser, setLoggedInUser, setRefresh, setAccess } =
     useContext(AuthContext);
-  const { data, isPending, status } = useGetAnswers(loggedInUser);
+  const { data, isPending, status } = useGetAnswers(0);
   useEffect(() => {
-    if (refresher.status === "success") {
+    if (refresher.status === "success" && loggedInUser === "") {
       setRefresh(refresher.data.refresh);
       setLoggedInUser(refresher.data.loggedInUser);
       setAccess(refresher.data.access);

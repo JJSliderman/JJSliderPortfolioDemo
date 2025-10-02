@@ -107,7 +107,7 @@ export const TemplateComponent = () => {
   const queryClient = useQueryClient();
   const { loggedInUser, setLoggedInUser, setRefresh, setAccess } =
     useContext(AuthContext);
-  const { data, status, isPending } = useGetAnswers(loggedInUser);
+  const { data, status, isPending } = useGetAnswers(step);
   const [text, setText] = useState<TextInput>({
     value: status === "success" ? data.answers[step] : "",
     error: false,
@@ -131,15 +131,10 @@ export const TemplateComponent = () => {
       helperText: "",
     });
   };
-  const demoSet = useSetDemo(
-    loggedInUser,
-    step,
-    questionsAnswers.length - 1,
-    stepChange
-  );
+  const demoSet = useSetDemo(step, questionsAnswers.length - 1, stepChange);
 
   useEffect(() => {
-    if (refresher.status === "success") {
+    if (refresher.status === "success" && loggedInUser === "") {
       setRefresh(refresher.data.refresh);
       setLoggedInUser(refresher.data.loggedInUser);
       setAccess(refresher.data.access);
@@ -151,9 +146,11 @@ export const TemplateComponent = () => {
     if (status === "success") {
       setText({ ...text, value: data.answers[step] });
       setRadio({ ...radio, value: data.answers[step] });
-      queryClient.invalidateQueries({ queryKey: ["demo", loggedInUser, step] });
+      queryClient.invalidateQueries({
+        queryKey: ["answers", loggedInUser, step],
+      });
     }
-  }, [status, step]);
+  }, [data]);
 
   const handleNextStep = (type: string) => {
     if (
@@ -206,6 +203,7 @@ export const TemplateComponent = () => {
       <button
         type="button"
         id="next"
+        disabled={isPending}
         data-testid="next"
         className="w-[150px] border-1 border-blue-500 cursor-pointer"
         color="secondary"

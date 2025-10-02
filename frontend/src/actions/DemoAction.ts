@@ -19,11 +19,11 @@ export const loginSchema = apiSuccessSchema.extend({
   loggedInUser: z.string(),
 });
 
-export const useGetAnswers = (username: string) => {
-  const { access } = useContext(AuthContext);
+export const useGetAnswers = (step: number) => {
+  const { access, loggedInUser } = useContext(AuthContext);
   return useQuery({
     queryFn: async () => {
-      const response = await fetch(`${getDemoURL}/${username}`, {
+      const response = await fetch(`${getDemoURL}/${loggedInUser}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${access}`,
@@ -36,7 +36,7 @@ export const useGetAnswers = (username: string) => {
       }
       return answersSchema.parse(await response.json());
     },
-    queryKey: ["answers", username],
+    queryKey: ["answers", loggedInUser, step],
   });
 };
 
@@ -101,7 +101,6 @@ export const useLogin = (username: string, password: string, route: string) => {
 };
 
 export const useSetDemo = (
-  username: string,
   step: number,
   maxStep: number,
   stepChange: () => void
@@ -109,7 +108,7 @@ export const useSetDemo = (
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { access } = useContext(AuthContext);
+  const { access, loggedInUser } = useContext(AuthContext);
   return useMutation({
     mutationFn: async (newValue: string) => {
       const response = await fetch(setDemoURL, {
@@ -119,7 +118,12 @@ export const useSetDemo = (
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ step, maxStep, username, newValue }),
+        body: JSON.stringify({
+          step,
+          maxStep,
+          username: loggedInUser,
+          newValue,
+        }),
       });
       if (!response.ok) {
         throw new Error("Unable to set demo data");
