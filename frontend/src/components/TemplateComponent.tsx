@@ -195,11 +195,11 @@ export const TemplateComponent = () => {
       setText({ ...text, error: true, helperText: "Need a value here" });
     }
   };
-  if (isPending) {
+  if (isPending || refresher.status === "pending") {
     return <p className="pt-4">Loading...</p>;
   } else if (status === "error" && loggedInUser !== "") {
     return <p className="pt-4">Error retrieving data...</p>;
-  } else if (loggedInUser === "") {
+  } else if (refresher.status !== "success" && status !== "success") {
     return (
       <div className="flex flex-col gap-4 pt-3 text-center items-center">
         <p>Login information has expired, please enter it again.</p>
