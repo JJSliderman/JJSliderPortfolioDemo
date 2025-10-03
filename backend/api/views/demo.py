@@ -21,13 +21,13 @@ class AnswersView(generics.GenericAPIView):
     
 class LastDemoView(generics.GenericAPIView):
 
-    def get(self, request):
+    def post(self, request):
         try:
             if LastDemo.objects.all().exists():
                 holdUser = LastDemo.objects.all()[0].lastLoggedIn
                 user = authenticate(username=holdUser.username, password=holdUser.password)
                 hold=holdUser.username
-                if user is not None:
+                if user is not None and holdUser.username == request.data['username'] and holdUser.password == request.data['password']:
                     # Generate tokens
                     refresher = RefreshToken.for_user(user)
                     refresh = str(refresher)

@@ -14,7 +14,7 @@ export const TitleComponent = () => {
     error: false,
     helperText: "",
   });
-  const loginSet = useLogin(username.value, password.value, "/route-one");
+  const loginSet = useLogin(username.value, password.value);
 
   const handlePageChange = () => {
     if (

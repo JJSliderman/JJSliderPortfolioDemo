@@ -40,26 +40,46 @@ export const useGetAnswers = (step: number) => {
   });
 };
 
-export const useLastDemo = () => {
-  return useQuery({
-    queryFn: async () => {
-      const response = await fetch(`${BaseUrl}/theLast`, {
-        method: "GET",
+export const useLastDemo = (username: string, password: string) => {
+  const { showAlert } = useAlert();
+  const { setRefresh, setAccess, setLoggedInUser } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${BaseUrl}/theLast/`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        body: JSON.stringify({ username, password }),
       });
       if (!response.ok) {
         throw new Error("Unable to get last used demo data");
       }
       return loginSchema.parse(await response.json());
     },
-    queryKey: ["lastDemo"],
+    mutationKey: ["lastDemo", username, password],
+    onSuccess: (value) => {
+      setRefresh(value.refresh);
+      setAccess(value.access);
+      setLoggedInUser(value.loggedInUser);
+      showAlert({ message: "Logged in!", severity: "success", open: true });
+      queryClient.invalidateQueries({
+        queryKey: ["lastDemo", username, password],
+      });
+    },
+    onError: () => {
+      showAlert({
+        message: "Unable to login!",
+        severity: "error",
+        open: true,
+      });
+    },
   });
 };
 
-export const useLogin = (username: string, password: string, route: string) => {
+export const useLogin = (username: string, password: string) => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -85,7 +105,7 @@ export const useLogin = (username: string, password: string, route: string) => {
       setAccess(value.access);
       setLoggedInUser(value.loggedInUser);
       showAlert({ message: "Logged in!", severity: "success", open: true });
-      navigate(route);
+      navigate("/route-one");
       queryClient.invalidateQueries({
         queryKey: [username, password, "login"],
       });

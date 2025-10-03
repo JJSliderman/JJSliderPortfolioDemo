@@ -103,10 +103,19 @@ const QuestionOptions = ({
 
 export const TemplateComponent = () => {
   const [step, setStep] = useState(0);
-  const refresher = useLastDemo();
+  const [username, setUsername] = useState<TextInput>({
+    value: "",
+    error: false,
+    helperText: "",
+  });
+  const [password, setPassword] = useState<TextInput>({
+    value: "",
+    error: false,
+    helperText: "",
+  });
+  const refresher = useLastDemo(username.value, password.value);
   const queryClient = useQueryClient();
-  const { loggedInUser, setLoggedInUser, setRefresh, setAccess } =
-    useContext(AuthContext);
+  const { loggedInUser } = useContext(AuthContext);
   const { data, status, isPending } = useGetAnswers(step);
   const [text, setText] = useState<TextInput>({
     value: status === "success" ? data.answers[step] : "",
@@ -134,15 +143,6 @@ export const TemplateComponent = () => {
   const demoSet = useSetDemo(step, questionsAnswers.length - 1, stepChange);
 
   useEffect(() => {
-    if (refresher.status === "success" && loggedInUser === "") {
-      setRefresh(refresher.data.refresh);
-      setLoggedInUser(refresher.data.loggedInUser);
-      setAccess(refresher.data.access);
-      queryClient.invalidateQueries({ queryKey: ["lastDemo"] });
-    }
-  }, [refresher.status]);
-
-  useEffect(() => {
     if (status === "success") {
       setText({ ...text, value: data.answers[step] });
       setRadio({ ...radio, value: data.answers[step] });
@@ -151,6 +151,31 @@ export const TemplateComponent = () => {
       });
     }
   }, [data]);
+
+  const handleSubmit = () => {
+    if (
+      username.value !== "" &&
+      !username.error &&
+      password.value !== "" &&
+      !password.error
+    ) {
+      refresher.mutate();
+    }
+    if (username.value === "") {
+      setUsername({
+        ...username,
+        error: true,
+        helperText: "Value must be non-null",
+      });
+    }
+    if (password.value === "") {
+      setPassword({
+        ...password,
+        error: true,
+        helperText: "Value must be non-null",
+      });
+    }
+  };
 
   const handleNextStep = (type: string) => {
     if (
@@ -172,8 +197,83 @@ export const TemplateComponent = () => {
   };
   if (isPending) {
     return <p className="pt-4">Loading...</p>;
-  } else if (status === "error") {
+  } else if (status === "error" && loggedInUser !== "") {
     return <p className="pt-4">Error retrieving data...</p>;
+  } else if (loggedInUser === "") {
+    return (
+      <div className="flex flex-col gap-4 pt-3 text-center items-center">
+        <p>Login information has expired, please enter it again.</p>
+        <TextField
+          sx={{ width: "300px" }}
+          helperText={username.helperText}
+          value={username.value}
+          error={username.error}
+          label="Username"
+          placeholder="Enter username"
+          onChange={(event) => {
+            setUsername({ ...username, value: event.target.value });
+          }}
+          onBlur={() => {
+            if (username.value === "") {
+              setUsername({
+                ...username,
+                error: true,
+                helperText: "Must be non-null!",
+              });
+            } else {
+              setUsername({
+                ...username,
+                error: false,
+                helperText: "",
+              });
+            }
+          }}
+        />
+        <TextField
+          sx={{ width: "300px" }}
+          helperText={password.helperText}
+          label="Password"
+          placeholder="Enter password"
+          value={password.value}
+          error={password.error}
+          onChange={(event) => {
+            setPassword({ ...password, value: event.target.value });
+          }}
+          onBlur={() => {
+            if (password.value === "") {
+              setPassword({
+                ...password,
+                error: true,
+                helperText: "Must be non-null!",
+              });
+            } else {
+              setPassword({
+                ...password,
+                error: false,
+                helperText: "",
+              });
+            }
+          }}
+        />
+        <button
+          type="button"
+          title="Submit Information"
+          className="border-1 w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
+          data-testid="changer"
+          disabled={
+            username.error ||
+            username.value === "" ||
+            password.error ||
+            password.value === ""
+          }
+          onClick={() => {
+            handleSubmit();
+          }}
+        >
+          Submit Information
+        </button>
+      </div>
+    );
   }
   return (
     <div className="flex flex-col gap-4 pt-3">
