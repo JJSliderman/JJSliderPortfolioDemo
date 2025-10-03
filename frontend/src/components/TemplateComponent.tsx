@@ -1,9 +1,11 @@
 import { Step, StepLabel, Stepper, TextField } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { questionsAnswers } from "../utils/CharacterAnswers";
-import { useGetAnswers, useLastDemo, useSetDemo } from "../actions/DemoAction";
+import { useGetAnswers, useSetDemo } from "../actions/DemoAction";
 import { AuthContext } from "..";
 import { useQueryClient } from "@tanstack/react-query";
+import { LoginRepeat } from "./LoginRepeat";
+import { ErrorPhrase, LoadingPhrase } from "./GenericPhrases";
 
 export type TextInput = { value: string; error: boolean; helperText: string };
 
@@ -103,17 +105,6 @@ const QuestionOptions = ({
 
 export const TemplateComponent = () => {
   const [step, setStep] = useState(0);
-  const [username, setUsername] = useState<TextInput>({
-    value: "",
-    error: false,
-    helperText: "",
-  });
-  const [password, setPassword] = useState<TextInput>({
-    value: "",
-    error: false,
-    helperText: "",
-  });
-  const refresher = useLastDemo(username.value, password.value);
   const queryClient = useQueryClient();
   const { loggedInUser } = useContext(AuthContext);
   const { data, status, isPending } = useGetAnswers(step);
@@ -152,31 +143,6 @@ export const TemplateComponent = () => {
     }
   }, [data]);
 
-  const handleSubmit = () => {
-    if (
-      username.value !== "" &&
-      !username.error &&
-      password.value !== "" &&
-      !password.error
-    ) {
-      refresher.mutate();
-    }
-    if (username.value === "") {
-      setUsername({
-        ...username,
-        error: true,
-        helperText: "Value must be non-null",
-      });
-    }
-    if (password.value === "") {
-      setPassword({
-        ...password,
-        error: true,
-        helperText: "Value must be non-null",
-      });
-    }
-  };
-
   const handleNextStep = (type: string) => {
     if (
       ((type === "radio" && radio.value !== "" && !radio.error) ||
@@ -195,85 +161,12 @@ export const TemplateComponent = () => {
       setText({ ...text, error: true, helperText: "Need a value here" });
     }
   };
-  if (isPending || refresher.status === "pending") {
-    return <p className="pt-4">Loading...</p>;
+  if (isPending) {
+    return <LoadingPhrase />;
   } else if (status === "error" && loggedInUser !== "") {
-    return <p className="pt-4">Error retrieving data...</p>;
-  } else if (refresher.status !== "success" && status !== "success") {
-    return (
-      <div className="flex flex-col gap-4 pt-3 text-center items-center">
-        <p>Login information has expired, please enter it again.</p>
-        <TextField
-          sx={{ width: "300px" }}
-          helperText={username.helperText}
-          value={username.value}
-          error={username.error}
-          label="Username"
-          placeholder="Enter username"
-          onChange={(event) => {
-            setUsername({ ...username, value: event.target.value });
-          }}
-          onBlur={() => {
-            if (username.value === "") {
-              setUsername({
-                ...username,
-                error: true,
-                helperText: "Must be non-null!",
-              });
-            } else {
-              setUsername({
-                ...username,
-                error: false,
-                helperText: "",
-              });
-            }
-          }}
-        />
-        <TextField
-          sx={{ width: "300px" }}
-          helperText={password.helperText}
-          label="Password"
-          placeholder="Enter password"
-          value={password.value}
-          error={password.error}
-          onChange={(event) => {
-            setPassword({ ...password, value: event.target.value });
-          }}
-          onBlur={() => {
-            if (password.value === "") {
-              setPassword({
-                ...password,
-                error: true,
-                helperText: "Must be non-null!",
-              });
-            } else {
-              setPassword({
-                ...password,
-                error: false,
-                helperText: "",
-              });
-            }
-          }}
-        />
-        <button
-          type="button"
-          title="Submit Information"
-          className="border-1 w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
-          data-testid="changer"
-          disabled={
-            username.error ||
-            username.value === "" ||
-            password.error ||
-            password.value === ""
-          }
-          onClick={() => {
-            handleSubmit();
-          }}
-        >
-          Submit Information
-        </button>
-      </div>
-    );
+    return <ErrorPhrase />;
+  } else if (status !== "success") {
+    return <LoginRepeat />;
   }
   return (
     <div className="flex flex-col gap-4 pt-3">
