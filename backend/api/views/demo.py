@@ -10,11 +10,14 @@ class AnswersView(generics.GenericAPIView):
     serializer_class = DemoSerializer
 
     def get(self, request, username):
-        try:
-            hold = Demo.objects.get(username=username).answers
-        except:
-            return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'status': 'success', 'answers': hold}, status=status.HTTP_200_OK)
+        if request.META.get('HTTP_AUTHORIZATION') is not None:
+            try:
+                hold = Demo.objects.get(username=username).answers
+            except:
+                return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'success', 'answers': hold}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
     
 class LastDemoView(generics.GenericAPIView):
 
@@ -73,22 +76,24 @@ class SetDemoView(generics.GenericAPIView):
     serializer_class = DemoSerializer
 
     def post(self, request):
-        try:
-            username = request.data['username']
-        except:
-            return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            step = request.data['step']
-            newValue = request.data['newValue']
-        except: 
-            return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-        demo = Demo.objects.get(username=username)
-        if len(demo.answers) == int(step):
-            demo.answers.append(newValue)
-        else:
-            demo.answers[int(step)] = newValue
-        demo.save()
-        return Response({'status': 'success'}, status=status.HTTP_200_OK)
+        if request.META.get('HTTP_AUTHORIZATION') is not None:
+            try:
+                username = request.data['username']
+            except:
+                return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                step = request.data['step']
+                newValue = request.data['newValue']
+            except: 
+                return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+            demo = Demo.objects.get(username=username)
+            if len(demo.answers) == int(step):
+                demo.answers.append(newValue)
+            else:
+                demo.answers[int(step)] = newValue
+            demo.save()
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+        return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
     
 class DefaultView(generics.GenericAPIView):
 
