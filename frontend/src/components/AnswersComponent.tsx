@@ -9,7 +9,7 @@ import { SelectedCharacter } from "./SelectedCharacter";
 import { TextInput } from "./TemplateComponent";
 import { useQueryClient } from "@tanstack/react-query";
 import { LoginRepeat } from "./LoginRepeat";
-import { ErrorPhrase, LoadingPhrase } from "./GenericPhrases";
+import { LoadingPhrase } from "./GenericPhrases";
 import { BackToDashboard } from "./BackToDashboard";
 
 export const AnswersComponent = () => {
