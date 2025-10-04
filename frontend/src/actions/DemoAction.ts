@@ -40,33 +40,36 @@ export const useGetAnswers = (step: number) => {
   });
 };
 
-export const useLastDemo = (username: string, password: string) => {
+export const useLastDemo = () => {
   const { showAlert } = useAlert();
   const { setRefresh, setAccess, setLoggedInUser } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (value: { username: string; password: string }) => {
       const response = await fetch(`${BaseUrl}/theLast/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: value.username,
+          password: value.password,
+        }),
       });
       if (!response.ok) {
         throw new Error("Unable to get last used demo data");
       }
       return loginSchema.parse(await response.json());
     },
-    mutationKey: ["lastDemo", username, password],
+    mutationKey: ["lastDemo"],
     onSuccess: (value) => {
       setRefresh(value.refresh);
       setAccess(value.access);
       setLoggedInUser(value.loggedInUser);
       showAlert({ message: "Logged in!", severity: "success", open: true });
       queryClient.invalidateQueries({
-        queryKey: ["lastDemo", username, password],
+        queryKey: ["lastDemo"],
       });
     },
     onError: () => {
@@ -79,27 +82,30 @@ export const useLastDemo = (username: string, password: string) => {
   });
 };
 
-export const useLogin = (username: string, password: string) => {
+export const useLogin = () => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { setAccess, setRefresh, setLoggedInUser } = useContext(AuthContext);
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (value: { username: string; password: string }) => {
       const response = await fetch(`${BaseUrl}/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: value.username,
+          password: value.password,
+        }),
       });
       if (!response.ok) {
         throw new Error("Unable to login");
       }
       return loginSchema.parse(await response.json());
     },
-    mutationKey: [username, password, "login"],
+    mutationKey: ["login"],
     onSuccess: (value) => {
       setRefresh(value.refresh);
       setAccess(value.access);
@@ -107,7 +113,7 @@ export const useLogin = (username: string, password: string) => {
       showAlert({ message: "Logged in!", severity: "success", open: true });
       navigate("/route-one");
       queryClient.invalidateQueries({
-        queryKey: [username, password, "login"],
+        queryKey: ["login"],
       });
     },
     onError: () => {

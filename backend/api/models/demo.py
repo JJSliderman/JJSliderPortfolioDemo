@@ -11,7 +11,3 @@ class Demo(models.Model):
     )
     class Meta:
         unique_together=('username', 'password')
-
-class LastDemo(models.Model):
-    lastLoggedIn = models.ForeignKey(Demo, on_delete=models.CASCADE, related_name='last_demo_used')
-    

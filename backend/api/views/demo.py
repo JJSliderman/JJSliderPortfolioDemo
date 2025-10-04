@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from api.models.demo import Demo, LastDemo
+from api.models.demo import Demo
 from api.serializers.demo import DemoSerializer
 
 class AnswersView(generics.GenericAPIView):
@@ -23,20 +23,17 @@ class LastDemoView(generics.GenericAPIView):
 
     def post(self, request):
         try:
-            if LastDemo.objects.all().exists():
-                holdUser = LastDemo.objects.all()[0].lastLoggedIn
-                user = authenticate(username=holdUser.username, password=holdUser.password)
-                hold=holdUser.username
-                if user is not None and holdUser.username == request.data['username'] and holdUser.password == request.data['password']:
+            if Demo.objects.filter(username=request.data["username"], password=request.data["password"]).exists():
+                user = authenticate(username=request.data["username"], password=request.data["password"])
+                hold=request.data["username"]
+                if user is not None:
                     # Generate tokens
                     refresher = RefreshToken.for_user(user)
                     refresh = str(refresher)
                     access = str(refresher.access_token)
                 
             else:
-                hold = ''
-                refresh = ''
-                access = ''
+                return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'status': 'success', 'loggedInUser': hold, 'access': access, 'refresh': refresh}, status=status.HTTP_200_OK)
@@ -56,12 +53,6 @@ class LoginView(generics.GenericAPIView):
             if user is not None:
                 # Generate tokens
                 refresh = RefreshToken.for_user(user)
-                if not LastDemo.objects.all().exists():
-                    LastDemo.objects.create(lastLoggedIn=newDemo)
-                else:
-                    newLast = LastDemo.objects.all()[0]
-                    newLast.lastLoggedIn = newDemo
-                    newLast.save()
                 return Response({
                     'status': 'success',
                     'access': str(refresh.access_token),
