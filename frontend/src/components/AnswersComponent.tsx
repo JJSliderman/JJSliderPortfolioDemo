@@ -10,6 +10,7 @@ import { TextInput } from "./TemplateComponent";
 import { useQueryClient } from "@tanstack/react-query";
 import { LoginRepeat } from "./LoginRepeat";
 import { ErrorPhrase, LoadingPhrase } from "./GenericPhrases";
+import { BackToDashboard } from "./BackToDashboard";
 
 export const AnswersComponent = () => {
   const { loggedInUser } = useContext(AuthContext);
@@ -65,7 +66,7 @@ export const AnswersComponent = () => {
   if (isPending) {
     return <LoadingPhrase />;
   } else if (status === "error" && loggedInUser !== "") {
-    return <ErrorPhrase />;
+    return <BackToDashboard />;
   } else if (status !== "success") {
     return <LoginRepeat />;
   }

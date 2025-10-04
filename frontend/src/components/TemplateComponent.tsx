@@ -5,7 +5,8 @@ import { useGetAnswers, useSetDemo } from "../actions/DemoAction";
 import { AuthContext } from "..";
 import { useQueryClient } from "@tanstack/react-query";
 import { LoginRepeat } from "./LoginRepeat";
-import { ErrorPhrase, LoadingPhrase } from "./GenericPhrases";
+import { LoadingPhrase } from "./GenericPhrases";
+import { BackToDashboard } from "./BackToDashboard";
 
 export type TextInput = { value: string; error: boolean; helperText: string };
 
@@ -164,7 +165,7 @@ export const TemplateComponent = () => {
   if (isPending) {
     return <LoadingPhrase />;
   } else if (status === "error" && loggedInUser !== "") {
-    return <ErrorPhrase />;
+    return <BackToDashboard />;
   } else if (status !== "success") {
     return <LoginRepeat />;
   }
