@@ -45,10 +45,8 @@ class LoginView(generics.GenericAPIView):
         # Authenticate user
         try:
             if not Demo.objects.filter(username=request.data["username"], password=request.data["password"]).exists():
-                newDemo=Demo.objects.create(username=request.data["username"], password=request.data["password"], answers=[])
+                Demo.objects.create(username=request.data["username"], password=request.data["password"], answers=[])
                 User.objects.create_user(username=request.data["username"], password=request.data["password"]) 
-            else:
-                newDemo = Demo.objects.get(username=request.data["username"], password=request.data["password"])
             user = authenticate(username=request.data["username"], password=request.data["password"])
             if user is not None:
                 # Generate tokens
