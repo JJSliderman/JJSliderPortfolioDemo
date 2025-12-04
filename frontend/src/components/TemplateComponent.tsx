@@ -141,6 +141,7 @@ export const TemplateComponent = () => {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [editOccurred, setEditOccurred] = useState(false);
   const [filter, setFilter] = useState<{
     name: string;
     enlistment: Date | null;
@@ -185,7 +186,14 @@ export const TemplateComponent = () => {
     color: "",
     epithet: "",
   });
-  const crewRetrieval = useGetCrew(filter, sortBy, direction, pager, rowser);
+  const crewRetrieval = useGetCrew(
+    filter,
+    sortBy,
+    direction,
+    pager,
+    rowser,
+    editOccurred
+  );
   const [text, setText] = useState<TextInput>({
     value: status === "success" ? data.answers[step] : "",
     error: false,
@@ -258,6 +266,7 @@ export const TemplateComponent = () => {
       retirement: undefined,
       deletion: undefined,
     });
+    setEditOccurred(!editOccurred);
   };
 
   const handleNextStep = (type: string) => {

@@ -79,7 +79,8 @@ export const useGetCrew = (
   sortBy: string,
   direction: string,
   page: number,
-  rows: number
+  rows: number,
+  editOccurred: boolean
 ) => {
   const { access, loggedInUser } = useContext(AuthContext);
   return useQuery({
@@ -105,7 +106,16 @@ export const useGetCrew = (
       return getCrewSchema.parse(await response.json());
     },
     enabled: loggedInUser !== "",
-    queryKey: ["crew", loggedInUser, page, rows, filter, direction, sortBy],
+    queryKey: [
+      "crew",
+      loggedInUser,
+      page,
+      rows,
+      filter,
+      direction,
+      sortBy,
+      editOccurred,
+    ],
   });
 };
 

@@ -33,8 +33,7 @@ export const FilterField = ({
     name: string;
     color: string;
     epithet: string;
-    retired: string;
-  }>({ name: "", epithet: "", color: "", retired: "all" });
+  }>({ name: "", epithet: "", color: "" });
   if (filterType === "name") {
     return (
       <div className="w-[300px] h-[250px] p-2 gap-3 flex flex-col">
@@ -66,8 +65,8 @@ export const FilterField = ({
               name: temporaryFilter.name,
               epithet: temporaryFilter.epithet,
               color: temporaryFilter.color,
-              retired: temporaryFilter.retired,
             });
+            closeMethod();
           }}
         />
       </div>
@@ -103,8 +102,8 @@ export const FilterField = ({
               name: temporaryFilter.name,
               epithet: temporaryFilter.epithet,
               color: temporaryFilter.color,
-              retired: temporaryFilter.retired,
             });
+            closeMethod();
           }}
         />
       </div>
@@ -140,8 +139,8 @@ export const FilterField = ({
               name: temporaryFilter.name,
               epithet: temporaryFilter.epithet,
               color: temporaryFilter.color,
-              retired: temporaryFilter.retired,
             });
+            closeMethod();
           }}
         />
       </div>
@@ -164,9 +163,10 @@ export const FilterField = ({
             }}
             label="Select a date"
             value={filter.enlistment}
-            onChange={(newValue) =>
-              setFilter({ ...filter, enlistment: newValue })
-            }
+            onChange={(newValue) => {
+              setFilter({ ...filter, enlistment: newValue });
+              closeMethod();
+            }}
           />
         </LocalizationProvider>
       </div>
@@ -175,33 +175,42 @@ export const FilterField = ({
     return (
       <div className="w-[300px] h-[250px] p-2 gap-3 flex flex-col">
         <BaseType close={closeMethod} />
-        <input
-          type="radio"
-          value="retired"
-          onChange={() => {
-            setFilter({ ...filter, retired: "retired" });
-          }}
-        >
-          Retired
-        </input>
-        <input
-          type="radio"
-          value="nonretired"
-          onChange={() => {
-            setFilter({ ...filter, retired: "nonretired" });
-          }}
-        >
-          Not Retired
-        </input>
-        <input
-          type="radio"
-          value="all"
-          onChange={() => {
-            setFilter({ ...filter, retired: "all" });
-          }}
-        >
-          All
-        </input>
+        <div className="flex gap-1 items-center">
+          <input
+            type="radio"
+            value="retired"
+            title="Retired"
+            onChange={() => {
+              setFilter({ ...filter, retired: "retired" });
+              closeMethod();
+            }}
+          />
+          <p>Retired</p>
+        </div>
+        <div className="flex gap-1 items-center">
+          <input
+            type="radio"
+            title="Not Retired"
+            value="nonretired"
+            onChange={() => {
+              setFilter({ ...filter, retired: "nonretired" });
+              closeMethod();
+            }}
+          />
+          <p>Not Retired</p>
+        </div>
+        <div className="flex gap-1 items-center">
+          <input
+            type="radio"
+            title="All"
+            value="all"
+            onChange={() => {
+              setFilter({ ...filter, retired: "all" });
+              closeMethod();
+            }}
+          />
+          <p>All</p>
+        </div>
       </div>
     );
   }
