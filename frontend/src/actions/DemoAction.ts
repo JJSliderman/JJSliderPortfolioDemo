@@ -38,6 +38,7 @@ export const answersSchema = apiSuccessSchema.extend({
 export const getCrewSchema = apiSuccessSchema.extend({
   crew: crewSchema,
   crewmates: crewmateSchema.array(),
+  count: z.number(),
 });
 
 export const loginSchema = apiSuccessSchema.extend({

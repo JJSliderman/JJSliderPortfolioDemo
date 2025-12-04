@@ -70,8 +70,8 @@ class CrewView(generics.GenericAPIView):
             except:
                 return Response({'status': 'error'}, status=status.HTTP_400_BAD_REQUEST)
             pagination = Paginator(mate_serializer.data, int(rows)) #Groups items in rows per page
-            items = pagination.get_page(int(page)) #Gets info for one page specifically. Object_list displays objects on that page
-            return Response({'status': 'success', 'crew': serializer.data, 'crewmates': items.object_list}, status=status.HTTP_200_OK)
+            items = pagination.get_page(int(page)+1) #Gets info for one page specifically. Object_list displays objects on that page
+            return Response({'status': 'success', 'crew': serializer.data, 'crewmates': items.object_list, 'count': len(mate_serializer.data)}, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
         

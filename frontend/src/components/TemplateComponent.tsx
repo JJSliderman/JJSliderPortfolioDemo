@@ -267,6 +267,14 @@ export const TemplateComponent = () => {
       deletion: undefined,
     });
     setEditOccurred(!editOccurred);
+    setSelectedCrewmate({
+      name: "",
+      epithet: "",
+      teamname: "",
+      enlistment: null,
+      retired: false,
+      color: "",
+    });
   };
 
   const handleNextStep = (type: string) => {
@@ -658,7 +666,7 @@ export const TemplateComponent = () => {
           </TableBody>
           <TablePagination
             onPageChange={(event, page) => handlePageChange(page)}
-            count={crewRetrieval.data.crewmates.length}
+            count={crewRetrieval.data.count}
             rowsPerPage={rowser}
             page={pager}
             onRowsPerPageChange={handleRowsPerPageChange}
