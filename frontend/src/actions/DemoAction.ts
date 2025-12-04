@@ -1,4 +1,12 @@
-import { getDemoURL, setDemoURL } from "../utils/urls/DemoUrls";
+import {
+  deleteCrewmateURL,
+  getCrewURL,
+  getDemoURL,
+  retireCrewmateURL,
+  setCrewmateURL,
+  setCrewURL,
+  setDemoURL,
+} from "../utils/urls/DemoUrls";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import z from "zod";
 import { AuthContext, useAlert } from "..";
@@ -9,8 +17,27 @@ import { BaseUrl } from "../utils/urls/BaseUrl";
 // other backend actions, involving changing new elements added by independent parties.
 export const apiSuccessSchema = z.object({ status: z.literal("success") });
 
+export const crewSchema = z.object({
+  symbol: z.string(),
+  name: z.string(),
+  organizername: z.string(),
+});
+export const crewmateSchema = z.object({
+  teamname: z.string(),
+  name: z.string(),
+  color: z.string(),
+  epithet: z.string(),
+  retired: z.boolean(),
+  enlistment: z.coerce.date(),
+});
+
 export const answersSchema = apiSuccessSchema.extend({
   answers: z.string().array(),
+});
+
+export const getCrewSchema = apiSuccessSchema.extend({
+  crew: crewSchema,
+  crewmates: crewmateSchema.array(),
 });
 
 export const loginSchema = apiSuccessSchema.extend({
@@ -36,49 +63,49 @@ export const useGetAnswers = (step: number) => {
       }
       return answersSchema.parse(await response.json());
     },
+    enabled: loggedInUser !== "",
     queryKey: ["answers", loggedInUser, step],
   });
 };
 
-export const useLastDemo = () => {
-  const { showAlert } = useAlert();
-  const { setRefresh, setAccess, setLoggedInUser } = useContext(AuthContext);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (value: { username: string; password: string }) => {
-      const response = await fetch(`${BaseUrl}/theLast/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          username: value.username,
-          password: value.password,
-        }),
-      });
+export const useGetCrew = (
+  filter: {
+    name: string;
+    color: string;
+    enlistment: Date | null;
+    epithet: string;
+    retired: string;
+  },
+  sortBy: string,
+  direction: string,
+  page: number,
+  rows: number
+) => {
+  const { access, loggedInUser } = useContext(AuthContext);
+  return useQuery({
+    queryFn: async () => {
+      const response = await fetch(
+        `${getCrewURL}/${loggedInUser}?name=${filter.name}&color=${
+          filter.color
+        }&retired=${filter.retired}&epithet=${filter.epithet}&enlistment=${
+          filter.enlistment?.getTime().toString() ?? ""
+        }&sortBy=${sortBy}&direction=${direction}&page=${page.toString()}&rows=${rows.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${access}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
       if (!response.ok) {
-        throw new Error("Unable to get last used demo data");
+        throw new Error("Unable to get crew");
       }
-      return loginSchema.parse(await response.json());
+      return getCrewSchema.parse(await response.json());
     },
-    mutationKey: ["lastDemo"],
-    onSuccess: (value) => {
-      setRefresh(value.refresh);
-      setAccess(value.access);
-      setLoggedInUser(value.loggedInUser);
-      showAlert({ message: "Logged in!", severity: "success", open: true });
-      queryClient.invalidateQueries({
-        queryKey: ["lastDemo"],
-      });
-    },
-    onError: () => {
-      showAlert({
-        message: "Unable to login!",
-        severity: "error",
-        open: true,
-      });
-    },
+    enabled: loggedInUser !== "",
+    queryKey: ["crew", loggedInUser, page, rows, filter, direction, sortBy],
   });
 };
 
@@ -110,7 +137,6 @@ export const useLogin = () => {
       setRefresh(value.refresh);
       setAccess(value.access);
       setLoggedInUser(value.loggedInUser);
-      showAlert({ message: "Logged in!", severity: "success", open: true });
       navigate("/route-one");
       queryClient.invalidateQueries({
         queryKey: ["login"],
@@ -169,6 +195,204 @@ export const useSetDemo = (
     onError: () => {
       showAlert({
         message: "Unable to save data!",
+        severity: "error",
+        open: true,
+      });
+    },
+  });
+};
+
+export const useSetCrew = (
+  stepChange: () => void,
+  name: string,
+  symbol: string
+) => {
+  const { showAlert } = useAlert();
+  const queryClient = useQueryClient();
+  const { access, loggedInUser } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(setCrewURL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          symbol,
+          username: loggedInUser,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Unable to set crew data");
+      }
+      return apiSuccessSchema.parse(await response.json());
+    },
+    mutationKey: ["setCrew"],
+    onSuccess: () => {
+      showAlert({
+        message: "Crew information Saved!",
+        severity: "success",
+        open: true,
+      });
+      stepChange();
+      queryClient.invalidateQueries({ queryKey: ["setCrew"] });
+    },
+    onError: () => {
+      showAlert({
+        message: "Unable to save crew data!",
+        severity: "error",
+        open: true,
+      });
+    },
+  });
+};
+
+export const useSetCrewmate = (
+  stepChange: () => void,
+  name: string,
+  epithet: string,
+  leader: string,
+  color: string,
+  oldname: string
+) => {
+  const { showAlert } = useAlert();
+  const queryClient = useQueryClient();
+  const { access, loggedInUser } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(setCrewmateURL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          epithet,
+          color,
+          organizer: loggedInUser,
+          leader,
+          oldname,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Unable to set crewmate data");
+      }
+      return apiSuccessSchema.parse(await response.json());
+    },
+    mutationKey: ["setCrewmate"],
+    onSuccess: () => {
+      showAlert({
+        message: "Crewmate information Saved!",
+        severity: "success",
+        open: true,
+      });
+      stepChange();
+      queryClient.invalidateQueries({ queryKey: ["setCrewmate"] });
+    },
+    onError: () => {
+      showAlert({
+        message: "Unable to save crewmate data!",
+        severity: "error",
+        open: true,
+      });
+    },
+  });
+};
+
+export const useRetireCrewmate = (
+  stepChange: () => void,
+  name: string,
+  leader: string
+) => {
+  const { showAlert } = useAlert();
+  const queryClient = useQueryClient();
+  const { access, loggedInUser } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(retireCrewmateURL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          organizer: loggedInUser,
+          leader,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Unable to retire crewmate");
+      }
+      return apiSuccessSchema.parse(await response.json());
+    },
+    mutationKey: ["retireCrewmate"],
+    onSuccess: () => {
+      showAlert({
+        message: "Crewmate Retired!",
+        severity: "success",
+        open: true,
+      });
+      stepChange();
+      queryClient.invalidateQueries({ queryKey: ["retireCrewmate"] });
+    },
+    onError: () => {
+      showAlert({
+        message: "Unable to retire crewmate!",
+        severity: "error",
+        open: true,
+      });
+    },
+  });
+};
+
+export const useDeleteCrewmate = (
+  stepChange: () => void,
+  name: string,
+  leader: string
+) => {
+  const { showAlert } = useAlert();
+  const queryClient = useQueryClient();
+  const { access, loggedInUser } = useContext(AuthContext);
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(deleteCrewmateURL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${access}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          organizer: loggedInUser,
+          leader,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Unable to remove crewmate");
+      }
+      return apiSuccessSchema.parse(await response.json());
+    },
+    mutationKey: ["deleteCrewmate"],
+    onSuccess: () => {
+      showAlert({
+        message: "Crewmate Removed!",
+        severity: "success",
+        open: true,
+      });
+      stepChange();
+      queryClient.invalidateQueries({ queryKey: ["deleteCrewmate"] });
+    },
+    onError: () => {
+      showAlert({
+        message: "Unable to remove crewmate!",
         severity: "error",
         open: true,
       });

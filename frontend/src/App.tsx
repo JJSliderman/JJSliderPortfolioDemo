@@ -4,8 +4,10 @@ import { AnswersComponent } from "./components/AnswersComponent";
 import { TemplateComponent } from "./components/TemplateComponent";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TitleComponent } from "./components/TitleComponent";
+import { LoginRepeat } from "./components/LoginRepeat";
+import { BackToDashboard } from "./components/BackToDashboard";
 
+//npm install @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons @fortawesome/free-regular-svg-icons @fortawesome/free-brands-svg-icons to install FontAwesome //
 export const App = () => {
   const navigate = useNavigate();
   const queryClient = new QueryClient();
@@ -23,9 +25,10 @@ export const App = () => {
       <div className="p-3">
         <Banner />
         <Routes>
-          <Route path="/dashboard" element={<TitleComponent />} />
+          <Route path="/dashboard" element={<LoginRepeat />} />
           <Route path="/route-two" element={<AnswersComponent />} />
           <Route path="/route-one" element={<TemplateComponent />} />
+          <Route path="*" element={<BackToDashboard />} />
         </Routes>
       </div>
     </QueryClientProvider>

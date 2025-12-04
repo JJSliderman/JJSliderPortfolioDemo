@@ -11,9 +11,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { LoginRepeat } from "./LoginRepeat";
 import { LoadingPhrase } from "./GenericPhrases";
 import { BackToDashboard } from "./BackToDashboard";
+import { useNavigate } from "react-router-dom";
 
 export const AnswersComponent = () => {
   const { loggedInUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [options, setOptions] = useState<string[]>([]);
   const [radio, setRadio] = useState<TextInput>({
@@ -58,6 +60,9 @@ export const AnswersComponent = () => {
   };
 
   useEffect(() => {
+    if (loggedInUser === "") {
+      navigate("/dashboard", { replace: true });
+    }
     if (status === "success") {
       characterPick();
     }
@@ -102,8 +107,8 @@ export const AnswersComponent = () => {
           <button
             type="button"
             title="Submit Choice"
-            className="border-1 w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
-            data-testid="changer"
+            className="border w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
+            data-testid="answer-choice"
             disabled={radio.value === "" || radio.error}
             onClick={() => {
               handleSubmit();

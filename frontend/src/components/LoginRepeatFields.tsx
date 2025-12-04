@@ -26,31 +26,41 @@ export const LoginRepeatFields = ({ loginMethod }: RepeatType) => {
       setUsername({
         ...username,
         error: true,
-        helperText: "Must be non-null!",
+        helperText: "Must be non-null and <= 100 characters!",
       });
     } else if (value === "password") {
       setPassword({
         ...password,
         error: true,
-        helperText: "Must be non-null!",
+        helperText: "Must be non-null and <= 100 characters!",
       });
     } else {
       setPassword({
         ...password,
         error: true,
-        helperText: "Must be non-null!",
+        helperText: "Must be non-null and <= 100 characters!",
       });
       setUsername({
         ...username,
         error: true,
-        helperText: "Must be non-null!",
+        helperText: "Must be non-null and <= 100 characters!",
       });
     }
   };
   return (
     <>
       <TextField
-        sx={{ width: "300px" }}
+        sx={{
+          width: "300px",
+          "& label.Mui-focused": {
+            color: username.error ? "#D3261A" : "#3B82F6",
+          },
+          "& .MuiOutlinedInput-root": {
+            "&.Mui-focused fieldset": {
+              borderColor: username.error ? "#D3261A" : "#3B82F6",
+            },
+          },
+        }}
         helperText={username.helperText}
         value={username.value}
         error={username.error}
@@ -60,11 +70,11 @@ export const LoginRepeatFields = ({ loginMethod }: RepeatType) => {
           setUsername({ ...username, value: event.target.value });
         }}
         onBlur={() => {
-          if (username.value === "") {
+          if (username.value === "" || username.value.length > 100) {
             setUsername({
               ...username,
               error: true,
-              helperText: "Must be non-null!",
+              helperText: "Must be non-null and less than 100 characters!",
             });
           } else {
             setUsername({
@@ -76,7 +86,17 @@ export const LoginRepeatFields = ({ loginMethod }: RepeatType) => {
         }}
       />
       <TextField
-        sx={{ width: "300px" }}
+        sx={{
+          width: "300px",
+          "& label.Mui-focused": {
+            color: password.error ? "#D3261A" : "#3B82F6",
+          },
+          "& .MuiOutlinedInput-root": {
+            "&.Mui-focused fieldset": {
+              borderColor: password.error ? "#D3261A" : "#3B82F6",
+            },
+          },
+        }}
         helperText={password.helperText}
         label="Password"
         placeholder="Enter password"
@@ -86,11 +106,11 @@ export const LoginRepeatFields = ({ loginMethod }: RepeatType) => {
           setPassword({ ...password, value: event.target.value });
         }}
         onBlur={() => {
-          if (password.value === "") {
+          if (password.value === "" || password.value.length > 100) {
             setPassword({
               ...password,
               error: true,
-              helperText: "Must be non-null!",
+              helperText: "Must be non-null and less than 100 characters!",
             });
           } else {
             setPassword({
@@ -104,13 +124,15 @@ export const LoginRepeatFields = ({ loginMethod }: RepeatType) => {
       <button
         type="button"
         title="Submit Information"
-        className="border-1 w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
-        data-testid="changer"
+        className="border w-[300px] border-blue-500 cursor-pointer disabled:cursor-auto h-10 disabled:bg-gray-500 disabled:border-gray-800"
+        data-testid="login"
         disabled={
           username.error ||
           username.value === "" ||
+          username.value.length > 100 ||
           password.error ||
-          password.value === ""
+          password.value === "" ||
+          password.value.length > 100
         }
         onClick={() => {
           loginMethod(username, password, elementSet);
