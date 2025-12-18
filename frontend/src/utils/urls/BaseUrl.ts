@@ -1,1 +1,4 @@
-export const BaseUrl = "http://127.0.0.1:8000/api";
+export const BaseUrl =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:8000"
+    : "https://jjslideronepiecepersonalityquiz.tiiny.site";

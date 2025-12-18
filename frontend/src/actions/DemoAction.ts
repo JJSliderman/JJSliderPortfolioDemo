@@ -127,7 +127,7 @@ export const useLogin = () => {
   const { setAccess, setRefresh, setLoggedInUser } = useContext(AuthContext);
   return useMutation({
     mutationFn: async (value: { username: string; password: string }) => {
-      const response = await fetch(`${BaseUrl}/login/`, {
+      const response = await fetch(`${BaseUrl}/api/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
