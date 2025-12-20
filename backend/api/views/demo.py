@@ -55,12 +55,12 @@ class CrewView(generics.GenericAPIView):
                     holdMates = holdMates.filter(enlistment=datetime.fromtimestamp(int(dateFilter) / 1000.0, tz=timezone.utc))
                 if sortFilter == 'name':
                     #Sorting list of dictionaries
-                    holdMates = sorted(holdMates, key=lambda x: x.name, reverse=reverse)
+                    holdMates = sorted(holdMates, key=lambda x: x.name.lower(), reverse=reverse)
                     #Sorting dictionary single: key=lambda item: item[0] for key and item[1] for value))
                 elif sortFilter == 'color':
-                    holdMates = sorted(holdMates, key=lambda x: x.color, reverse=reverse)
+                    holdMates = sorted(holdMates, key=lambda x: x.color.lower(), reverse=reverse)
                 elif sortFilter == 'epithet':
-                    holdMates = sorted(holdMates, key=lambda x: x.epithet, reverse=reverse)
+                    holdMates = sorted(holdMates, key=lambda x: x.epithet.lower(), reverse=reverse)
                 elif sortFilter == 'retired':
                     holdMates = sorted(holdMates, key=lambda x: x.retired, reverse=reverse)
                 else:

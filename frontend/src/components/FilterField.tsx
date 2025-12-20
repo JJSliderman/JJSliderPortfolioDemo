@@ -69,6 +69,24 @@ export const FilterField = ({
             closeMethod();
           }}
         />
+        <button
+          type="button"
+          title="Reset Filter"
+          className="border h-7 w-[100px] border-blue-500 cursor-pointer"
+          data-testid="reset-name"
+          onClick={() => {
+            setFilter({
+              ...filter,
+              enlistment: null,
+              name: "",
+              epithet: "",
+              color: "",
+            });
+            closeMethod();
+          }}
+        >
+          Reset Filter
+        </button>
       </div>
     );
   } else if (filterType === "color") {
@@ -106,6 +124,24 @@ export const FilterField = ({
             closeMethod();
           }}
         />
+        <button
+          type="button"
+          title="Reset Filter"
+          className="border h-7 w-[100px] border-blue-500 cursor-pointer"
+          data-testid="reset-color"
+          onClick={() => {
+            setFilter({
+              ...filter,
+              enlistment: null,
+              name: "",
+              epithet: "",
+              color: "",
+            });
+            closeMethod();
+          }}
+        >
+          Reset Filter
+        </button>
       </div>
     );
   } else if (filterType === "epithet") {
@@ -143,6 +179,24 @@ export const FilterField = ({
             closeMethod();
           }}
         />
+        <button
+          type="button"
+          title="Reset Filter"
+          className="border h-7 w-[100px] border-blue-500 cursor-pointer"
+          data-testid="reset-epithet"
+          onClick={() => {
+            setFilter({
+              ...filter,
+              enlistment: null,
+              name: "",
+              epithet: "",
+              color: "",
+            });
+            closeMethod();
+          }}
+        >
+          Reset Filter
+        </button>
       </div>
     );
   } else if (filterType === "enlistment") {
@@ -169,6 +223,24 @@ export const FilterField = ({
             }}
           />
         </LocalizationProvider>
+        <button
+          type="button"
+          title="Reset Filter"
+          className="border h-7 w-[100px] border-blue-500 cursor-pointer"
+          data-testid="reset-enlistment"
+          onClick={() => {
+            setFilter({
+              ...filter,
+              enlistment: null,
+              name: "",
+              epithet: "",
+              color: "",
+            });
+            closeMethod();
+          }}
+        >
+          Reset Filter
+        </button>
       </div>
     );
   } else if (filterType === "retired") {
