@@ -48,7 +48,6 @@ export const loginSchema = apiSuccessSchema.extend({
 });
 
 export const useGetAnswers = (step: number) => {
-  // Test of github accesss
   const { access, loggedInUser } = useContext(AuthContext);
   return useQuery({
     queryFn: async () => {
