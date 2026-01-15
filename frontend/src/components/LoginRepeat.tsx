@@ -50,7 +50,7 @@ export const LoginRepeat = () => {
   return (
     <div className="flex justify-evenly">
       <div />
-      <div className="flex flex-col my-2.5 gap-4 text-center items-center w-[400px]">
+      <div className="flex flex-col my-2.5 gap-4 text-center items-center sm:w-[600px] max-sm:w-[95%]">
         <div>
           Welcome to the App! Enter your username and password, then hit the
           button to begin working!

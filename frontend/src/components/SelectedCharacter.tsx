@@ -31,7 +31,7 @@ export const SelectedCharacter = ({ topPick }: CharacterType) => {
     <div className="items-center flex flex-col gap-4">
       <p className="text-3xl font-bold">{topPick}!</p>
       <img
-        className="w-[800px]"
+        className="max-sm:w-[95%] sm:w-[600px]"
         src={characterPicture()}
         alt="Straw Hat image"
       />

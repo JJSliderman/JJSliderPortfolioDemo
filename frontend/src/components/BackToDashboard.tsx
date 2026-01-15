@@ -9,14 +9,14 @@ export const BackToDashboard = () => {
       <button
         type="button"
         id="back-to-dashboard"
-        className="w-[400px] border cursor-pointer disabled:cursor-auto border-blue-500 disabled:bg-gray-400 disabled:border-gray-800"
+        className="w-[340px] border cursor-pointer disabled:cursor-auto border-blue-500 disabled:bg-gray-400 disabled:border-gray-800"
         data-testid="prev"
         color="secondary"
         onClick={() => {
           navigate("/dashboard");
         }}
       >
-        Go To Dashboard
+        Dashboard
       </button>
     </div>
   );
