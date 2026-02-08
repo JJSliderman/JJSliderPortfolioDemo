@@ -19,7 +19,6 @@ export const App = () => {
       navigate("/dashboard");
     }
   }, []);
-  //d
 
   return (
     <QueryClientProvider client={queryClient}>
